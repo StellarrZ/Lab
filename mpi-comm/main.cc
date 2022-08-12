@@ -9,12 +9,17 @@ int main() {
   MPI_Comm_size(MPI_COMM_WORLD, &world_size);
   MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
+  // std::vector<int32_t> ranks;
+  // for (int32_t i = 0; i < world_size; i = i + 2) {
+  //   ranks.push_back(i);
+  // }
+
   std::vector<int32_t> ranks;
-  for (int32_t i = 0; i < world_size; i = i + 2) {
+  for (int32_t i = 7; i >= 0; i = i - 2) {
     ranks.push_back(i);
   }
 
-  if ((world_rank % 2) == 0) {
+  if ((world_rank % 2) != 0) {
     MPI_Group world_group, new_group;
     MPI_Comm_group(MPI_COMM_WORLD, &world_group);
     MPI_Group_incl(world_group, ranks.size(), ranks.data(), &new_group);
