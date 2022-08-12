@@ -22,17 +22,22 @@ int main() {
     MPI_Comm comm_all_ranks, comm_local_ranks;
     MPI_Comm_create_group(MPI_COMM_WORLD, new_group, 0, &comm_all_ranks);
 
-    int color = 0;
+    int group_world_size, group_world_rank;
+    MPI_Comm_size(comm_all_ranks, &group_world_size);
+    MPI_Comm_rank(comm_all_ranks, &group_world_rank);
+    std::cout << "  group_world_size " << group_world_size 
+              << "  group_world_rank " << group_world_rank 
+              << std::endl;
+
+    int color = 0;  // `world_rank / world_local_size` for multi-node experiment
     int key;
     MPI_Comm_rank(comm_all_ranks, &key);
     MPI_Comm_split(comm_all_ranks, color, key, &comm_local_ranks);
-
     std::cout << "  rank " << world_rank << "  key " << key << std::endl;
 
     int group_local_size, group_local_rank;
     MPI_Comm_size(comm_local_ranks, &group_local_size);
     MPI_Comm_rank(comm_local_ranks, &group_local_rank);
-
     std::cout << "  group_local_size " << group_local_size 
               << "  group_local_rank " << group_local_rank 
               << std::endl;
