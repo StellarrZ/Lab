@@ -16,7 +16,8 @@ int main() {
     auto start = std::chrono::system_clock::now();
     cudaMemcpy(dst, src, num_bytes, cudaMemcpyDeviceToDevice);
     auto end = std::chrono::system_clock::now();
-    std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(end.time_since_epoch() - start.time_since_epoch()).count()
+    std::cout << std::chrono::duration_cast<std::chrono::nanoseconds>(
+                    end.time_since_epoch() - start.time_since_epoch()).count()
               << " ns" 
               << std::endl;
   }
