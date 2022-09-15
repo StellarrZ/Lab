@@ -6,7 +6,7 @@
 
 __global__ void cuSleep() {
   for (int i = 0; i < 10; i++) {  // 10 ms
-    __nanosleep(10000000U);  // 1 ms
+    __nanosleep(1000000U);  // 1 ms
   }
 }
 
