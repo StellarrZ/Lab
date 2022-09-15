@@ -10,6 +10,8 @@ __global__ void cuSleep() {
   }
 }
 
+__global__ void noOp() {}
+
 
 int main() {
   cudaStream_t stream;
@@ -25,6 +27,30 @@ int main() {
   float ms_1, ms_2;
 
   for (int i = 0; i < 100; i++) {
+    // cudaEventRecord(start_evt_1, stream);
+    // cuSleep<<<1, 32, 0, stream>>>();
+    // cuSleep<<<1, 32, 0, stream>>>();
+    // cuSleep<<<1, 32, 0, stream>>>();
+    // cuSleep<<<1, 32, 0, stream>>>();
+    // cuSleep<<<1, 32, 0, stream>>>();
+    // cudaEventRecord(end_evt_1, stream);
+
+    // cudaEventRecord(start_evt_2, stream);
+    // cuSleep<<<1, 32, 0, stream>>>();
+    // cuSleep<<<1, 32, 0, stream>>>();
+    // cuSleep<<<1, 32, 0, stream>>>();
+    // cuSleep<<<1, 32, 0, stream>>>();
+    // cuSleep<<<1, 32, 0, stream>>>();
+    // cudaEventRecord(end_evt_2, stream);
+
+    cudaEventRecord(start_evt_2, stream);
+    noOp<<<1, 32, 0, stream>>>();
+    noOp<<<1, 32, 0, stream>>>();
+    noOp<<<1, 32, 0, stream>>>();
+    noOp<<<1, 32, 0, stream>>>();
+    noOp<<<1, 32, 0, stream>>>();
+    cudaEventRecord(end_evt_2, stream);
+
     cudaEventRecord(start_evt_1, stream);
     cuSleep<<<1, 32, 0, stream>>>();
     cuSleep<<<1, 32, 0, stream>>>();
@@ -32,14 +58,6 @@ int main() {
     cuSleep<<<1, 32, 0, stream>>>();
     cuSleep<<<1, 32, 0, stream>>>();
     cudaEventRecord(end_evt_1, stream);
-
-    cudaEventRecord(start_evt_2, stream);
-    cuSleep<<<1, 32, 0, stream>>>();
-    cuSleep<<<1, 32, 0, stream>>>();
-    cuSleep<<<1, 32, 0, stream>>>();
-    cuSleep<<<1, 32, 0, stream>>>();
-    cuSleep<<<1, 32, 0, stream>>>();
-    cudaEventRecord(end_evt_2, stream);
 
     // std::this_thread::sleep_for(std::chrono::milliseconds(200));  // 200 ms
 
