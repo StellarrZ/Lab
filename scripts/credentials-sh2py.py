@@ -3,8 +3,7 @@ def _mapper(line):
     return "os.environ[\"" + line[7:ind_eq] + "\"] = \"" + line[ind_eq + 1:] + "\""
     
 
-lines = """    """
+credentials = """    """
 
-res = list(map(_mapper, lines.split("\n")))
 print("import os")
-print("\n".join(res))
+print("\n".join(map(_mapper, credentials.split("\n"))))
