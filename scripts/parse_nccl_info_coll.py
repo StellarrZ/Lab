@@ -23,8 +23,8 @@ def sizeof_nccl_datatype(datatype):
 
 
 
-def main():
-    with open("/fsx/pzesheng/logs/nccl_info/sample_coll_z2.log", "r") as f:
+def log2csv(fname):
+    with open(os.path.join(path, fname + ".log"), "r") as f:
     # with open("/fsx/pzesheng/logs/nccl_info/sample_coll.log", "r") as f:
         lines = f.readlines()
 
@@ -63,12 +63,15 @@ def main():
                 size *= nranks
             info[coll][size].append(opCount)
     
-    # ToDo: put in csv directly
-    for coll, stripe in info.items():
-        for size, nums in stripe.items():
-            print("%14s, %12d, %d," % (coll, size, len(nums)), nums)
+    with open(os.path.join(path, fname + ".csv"), "w") as f:
+        for coll, stripe in info.items():
+            for size, nums in stripe.items():
+                print("%14s, %12d, %d," % (coll, size, len(nums)), nums, file=f)
 
 
 
 if __name__ == '__main__':
-    main()
+    path = "/fsx/pzesheng/logs/nccl_info/apr20-size/"
+    for fname in os.listdir(path):
+        if fname[-4:] == ".log":
+            log2csv(fname[:-4])
