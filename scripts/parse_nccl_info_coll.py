@@ -22,6 +22,39 @@ def sizeof_nccl_datatype(datatype):
         return -1
 
 
+def size_bytes_to_str(size):
+    i = 0
+    units = ("  B", " KB", " MB", " GB")
+    quo, rem = size, 0
+    while not rem:
+        size_str = str(quo) + units[i]
+        i += 1
+        quo, rem = divmod(quo, 1024)
+    return size_str
+
+
+# in-place modify
+def ignore_init(info):
+    bcastNumMax = "-1"
+    for nums in info["Broadcast"].values():
+        bcastNumMax = max([bcastNumMax] + nums, key=(lambda x: int(x, 16)))
+    info.pop("Broadcast")
+
+    watershed = int(bcastNumMax, 16)
+    for coll, stripe in info.items():
+        # ToDo: differentiate opCount by comm/stream address
+        if coll != "AllGather":
+            continue
+        for size, nums in stripe.items():
+            # searchable here
+            while nums and int(nums[0], 16) <= watershed:
+                nums.pop(0)
+            if not nums:
+                stripe.pop(size)
+        if not coll:
+            info.pop(coll)
+
+
 
 def log2csv(fname):
     with open(os.path.join(path, fname + ".log"), "r") as f:
@@ -58,20 +91,30 @@ def log2csv(fname):
                 i += 2
             
             size = count * sizeof_nccl_datatype(datatype)
-            # for output buffer size
-            if coll == "AllGather":
+            # for global buffer size
+            # i.e., AG output, RS input
+            if coll in ("AllGather", "ReduceScatter"):
                 size *= nranks
             info[coll][size].append(opCount)
+    
+    # remove init colls
+    ignore_init(info)
     
     with open(os.path.join(path, fname + ".csv"), "w") as f:
         for coll, stripe in info.items():
             for size, nums in stripe.items():
-                print("%14s, %12d, %d," % (coll, size, len(nums)), nums, file=f)
-
+                # csv format:
+                # collName, globalBufferSize, count, [opCount, ...]
+                size_str = size_bytes_to_str(size)
+                print("%14s, %12s, %6d" % (coll, size_str, len(nums)), *nums, sep=", ", file=f)
+                # print("%14s, %12d, %6d" % (coll, size, len(nums)), *nums, sep=", ", file=f)
 
 
 if __name__ == '__main__':
-    path = "/fsx/pzesheng/logs/nccl_info/apr20-size/"
+    # path = "/fsx/pzesheng/logs/nccl_info/size_passes/15b_z3"
+    # path = "/fsx/pzesheng/logs/nccl_info/size_passes/30b_z3"
+    # path = "/fsx/pzesheng/logs/nccl_info/size_passes/65b_z3"
+    path = "/fsx/pzesheng/logs/nccl_info/size_passes/95b_z3"
     for fname in os.listdir(path):
         if fname[-4:] == ".log":
             log2csv(fname[:-4])
