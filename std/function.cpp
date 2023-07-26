@@ -30,10 +30,7 @@ struct Decorator<Fn(Args ...)>
 
 template<class Fn, class... Args>
 std::function<Fn(Args...)> makeDecorator(Fn (*f)(Args ...)) {
-  auto ret = Decorator<Fn(Args...)>(f);
-  std::cout << "decorating..." << std::endl;
-
-  return ret;
+  return Decorator<Fn(Args...)>(f);
 }
 
 
